@@ -10,5 +10,7 @@ import z from "zod";
     availableQty: number,
     orders: { userId: string, qty: number, filledQty: number, originalOrderId: string, reverseOrder: boolean }[]
 }}
-
-const prices = Object.keys(yesOrderbook).sort((a: string, b: string) => Number(a) - Number(b));
+export const SplitSchema=z.object({
+   marketId: z.string(),
+   amount: z.number()
+})
