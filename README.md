@@ -91,6 +91,15 @@ Body: {
 - **Position**: id, userId, marketId, type (Yes/No), qty
 - **OrderHistory**: id, orderType, qty, price, userId, marketId
 
+## Frontend
+
+The frontend is accessible at `http://localhost:3000` and provides:
+- Market listing and selection
+- Order placement (buy/sell yes/no)
+- Split/merge functionality
+- Position tracking
+- Order history
+
 ## Notes
 
 - All monetary values are stored in cents (integers) to avoid floating-point precision issues
