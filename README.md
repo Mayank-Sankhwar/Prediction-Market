@@ -1,159 +1,99 @@
-# Turborepo starter
+# Prediction Market Backend
 
-This Turborepo starter is maintained by the Turborepo core team.
+A prediction market backend with order matching, split/merge functionality, and onramp/offramp capabilities.
 
-## Using this example
+## Setup
 
-Run the following command:
-
-```sh
-npx create-turbo@latest
+1. Install dependencies:
+```bash
+bun install
 ```
 
-## What's inside?
-
-This Turborepo includes the following packages/apps:
-
-### Apps and Packages
-
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
-
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
-
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo build
+2. Set up environment variables:
+Create a `.env` file with:
+```
+SUPABASE_SECRET_KEY=your-supabase-secret-key
+DATABASE_URL=your-database-url
 ```
 
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo build
-bun dlx turbo build
-bun exec turbo build
+3. Seed the database with sample data:
+```bash
+bun run seed.ts
 ```
 
-You can build a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+This will create:
+- 5 sample markets
+- 3 sample users with starting balances
+- Sample positions and order history
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+## Running the Server
 
-```sh
-turbo build --filter=docs
+```bash
+bun run index.ts
 ```
 
-Without global `turbo`:
+The server will start on `http://localhost:3000`
 
-```sh
-npx turbo build --filter=docs
-bun exec turbo build --filter=docs
-bun exec turbo build --filter=docs
+## API Endpoints
+
+### Public Endpoints
+- `GET /` - Frontend interface
+- `GET /markets` - Get all markets
+- `GET /market?marketId=<id>` - Get specific market
+
+### Protected Endpoints (require authentication)
+- `POST /order` - Place an order (buy/sell yes/no)
+- `POST /split` - Split USD into Yes/No positions
+- `POST /merge` - Merge Yes/No positions back to USD
+- `GET /balance` - Get user's USD balance
+- `GET /positions` - Get user's positions
+- `POST /history` - Get user's order history
+
+## Request/Response Examples
+
+### Place Order
+```bash
+POST /order
+Headers: Authorization: <your-auth-token>
+Body: {
+  "marketId": "market-uuid",
+  "side": "yes",
+  "type": "buy",
+  "price": 60,
+  "qty": 10
+}
 ```
 
-### Develop
-
-To develop all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo dev
+### Split
+```bash
+POST /split
+Headers: Authorization: <your-auth-token>
+Body: {
+  "marketId": "market-uuid",
+  "amount": 10
+}
 ```
 
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo dev
-bun exec turbo dev
-bun exec turbo dev
+### Merge
+```bash
+POST /merge
+Headers: Authorization: <your-auth-token>
+Body: {
+  "marketId": "market-uuid",
+  "amount": 10
+}
 ```
 
-You can develop a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+## Database Schema
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+- **User**: id, address, usdBalance
+- **Market**: id, title, description, resolutionDescription, yesOrderbook, noOrderbook, totalQty
+- **Position**: id, userId, marketId, type (Yes/No), qty
+- **OrderHistory**: id, orderType, qty, price, userId, marketId
 
-```sh
-turbo dev --filter=web
-```
+## Notes
 
-Without global `turbo`:
-
-```sh
-npx turbo dev --filter=web
-bun exec turbo dev --filter=web
-bun exec turbo dev --filter=web
-```
-
-### Remote Caching
-
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo login
-```
-
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo login
-bun exec turbo login
-bun exec turbo login
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo link
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo link
-bun exec turbo link
-bun exec turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.dev/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.dev/docs/reference/configuration)
-- [CLI Usage](https://turborepo.dev/docs/reference/command-line-reference)
+- All monetary values are stored in cents (integers) to avoid floating-point precision issues
+- The backend uses Express.js with CORS enabled
+- Authentication is handled via Supabase auth tokens
+- Order matching is handled through an orderbook system with reverse order support
